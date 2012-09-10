@@ -1,0 +1,81 @@
+Introduction to financial modeling in Python
+
+ipython notebook --pylab=inline
+
+
+
+
+tsl.resample ffill
+
+memory profiler
+
+
+HDF to sort time series
+
+pd.HDFStore
+
+SciPy Stack
+Python
+NumPy
+Pandas
+Matplotlib
+IPython
+SciPy
+Cython: write like python compile C code
+
+A lot of function 0.8 or above
+Numpy 1.6 or higher
+
+
+Data
+prices by exchangers
+Data providers and agg attempt to clean and regularize
+Higher freq, the more errors
+*0, negative, null prices
+*Bid > Ask
+*Incorrect split/div adj
+*Price for wrong ticker
+*Bogus price
+*Real time data from exch has most eror
+1tick
+tap
+much less data
+
+
+ipy notebook
+
+Long running gap in the data
+
+This is forward filling data
+limited= p1.fillna(method='ffill', limit=1)
+limited.ix[10:20, 'AAPL']
+
+interp = pl.AAPL.interpolate(method='time')
+interp[10:20]
+
+Siegel's Paradox
+fred database
+
+ddof 1 by default
+can chg to 0 if you want to change sample/ population
+
+Ranked
+Winsorization
+Filled blanks with mean
+
+FRED
+http://research.stlouisfed.org/fred2/categories/32455
+Risk free rate is avail on FRED database
+
+Sortino ratio
+Pandas can dump into Excel
+
+Libraries for
+pyexcel
+
+xlwt
+install setup tools
+easy install
+rickshaw for animation
+cvxopt for portfolio optimization
+optimization function in scipy
