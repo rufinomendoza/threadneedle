@@ -1,4 +1,4 @@
-# Quick & dirty code to do mass calculations
+# Quick & dirty code to do mass calculations of yoy returns for 2012
 # Rufino Mendoza 1/1/2013
 # Should eventually add sys argv and import functions
 
@@ -15,33 +15,64 @@ def yoy(symbol):
 	# Eventually want to automate this so it's the last weekday of the year
 	return end["Adj Close"].ix[0]/start["Adj Close"].ix[0]-1
 
-# Then we format it so it can be written to a file in a human readable output
-def yoy_formatted(asset_class):
-	yoy_formatted = []
+# Create a dictionary with assets sorted in descending order of return
+def sorted_yoy(asset_class):
+	d = {}
 	for stock in asset_class:
-		yoy_fmt = str(yoy(stock))	
-		yoy_formatted.append(stock)
-		yoy_formatted.append(",")
-		yoy_formatted.append(yoy_fmt)
-		yoy_formatted.append("\n")
-	print yoy_formatted
-	return yoy_formatted
+		yoy_chg = yoy(stock)
+		d[stock] = yoy_chg
+	sorted(d.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+	return d
+
+# Then we format it so it can be written to a file in a human readable output
+def yoy_fmt(asset_class):
+	yoy_fmt = []
+	for stock in asset_class:
+		yoy_string = str(yoy(stock))
+		yoy_fmt.append(stock)
+		yoy_fmt.append(",")
+		yoy_fmt.append(yoy_string)
+		yoy_fmt.append("\n")
+	return yoy_fmt
+
+# Does the same thing as yoy_fmt but sorted by return
+def sorted_yoy_fmt(asset_class):
+	data = sorted_yoy(asset_class)
+	print data
+	output = []
+	for i, v in data.iteritems():
+		output.append(i)
+		output.append(",")
+		output.append(str(v))
+		output.append("\n")
+	return output
+
+# Can import list of securities from csv file
+def import_data(filename):
+	in_file = open(filename, 'r')
+	data = []
+	for row in in_file:
+		data.append(row.strip())
+	in_file.close()
+	return data
 
 # Actual writing of the file
 def write(label, asset_class):
 	filename='%s.csv' % label
-	lines = yoy_formatted(asset_class)
+	lines = sorted_yoy_fmt(asset_class)
 	exists(filename)
 	out_file = open(filename, 'w')
 	out_file.writelines(lines)
 	out_file.close()
 
 # Enter the sets of assets you want to compare
+spx_index = import_data('sp500_input.csv')
 ixn = ['AAPL', 'ORCL']
 dow = ['XOM', 'GE']
 
 # For each item in the dictionary, the key will double as the name of the file that is outputted
-types = {'Tech Companies': ixn,'Dow Jones': dow}
+# Select what you actually want to write a file for
+types = {'Tech Companies': ixn,'Dow Jones': dow, 'S&P 500' : spx_index}
 
 for i, v in types.iteritems():
 	write(i, v)
