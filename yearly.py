@@ -1,6 +1,6 @@
 # Quick & dirty code to do mass calculations of yoy returns for 2012
 # Rufino Mendoza 1/1/2013
-# Should eventually add sys argv and import functions
+# Should eventually add sys argv
 
 from pandas import ols, DataFrame
 from pandas.stats.moments import rolling_std
@@ -10,8 +10,9 @@ from os.path import exists
 
 # This function just gets the raw data and finds the raw yoy
 def yoy(symbol):
-	start = DataReader(symbol, "yahoo", start=datetime.datetime(2011, 12, 30), end=datetime.datetime(2011, 12, 30))
+	start = DataReader(symbol, "yahoo", start=datetime.datetime(2011, 12, 30))
 	end = DataReader(symbol, "yahoo", start=datetime.datetime(2012, 12, 31), end=datetime.datetime(2012, 12, 31))
+	print symbol, start.ix[0], end.ix[0]
 	# Eventually want to automate this so it's the last weekday of the year
 	return end["Adj Close"].ix[0]/start["Adj Close"].ix[0]-1
 
@@ -48,6 +49,7 @@ def sorted_yoy_fmt(asset_class):
 	return output
 
 # Can import list of securities from csv file
+# Make sure class A and B stock symbols correspond to the yahoo finance symbology
 def import_data(filename):
 	in_file = open(filename, 'r')
 	data = []
