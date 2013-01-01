@@ -12,7 +12,7 @@ from os.path import exists
 def yoy(symbol):
 	start = DataReader(symbol, "yahoo", start=datetime.datetime(2011, 12, 30))
 	end = DataReader(symbol, "yahoo", start=datetime.datetime(2012, 12, 31), end=datetime.datetime(2012, 12, 31))
-	print symbol, start.ix[0], end.ix[0]
+	print symbol
 	# Eventually want to automate this so it's the last weekday of the year
 	return end["Adj Close"].ix[0]/start["Adj Close"].ix[0]-1
 
@@ -74,7 +74,7 @@ dow = ['XOM', 'GE']
 
 # For each item in the dictionary, the key will double as the name of the file that is outputted
 # Select what you actually want to write a file for
-types = {'Tech Companies': ixn,'Dow Jones': dow, 'S&P 500' : spx_index}
+types = {'SPX Index' : spx_index}
 
 for i, v in types.iteritems():
 	write(i, v)
