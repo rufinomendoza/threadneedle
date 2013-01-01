@@ -17,12 +17,11 @@ def yoy(symbol):
 	return end["Adj Close"].ix[0]/start["Adj Close"].ix[0]-1
 
 # Create a dictionary with assets sorted in descending order of return
-def sorted_yoy(asset_class):
+def all_assets_yoy(asset_class):
 	d = {}
 	for stock in asset_class:
 		yoy_chg = yoy(stock)
 		d[stock] = yoy_chg
-	sorted(d.iteritems(), key=lambda (k,v): (v,k), reverse=True)
 	return d
 
 # Then we format it so it can be written to a file in a human readable output
@@ -38,10 +37,9 @@ def yoy_fmt(asset_class):
 
 # Does the same thing as yoy_fmt but sorted by return
 def sorted_yoy_fmt(asset_class):
-	data = sorted_yoy(asset_class)
-	print data
+	data = all_assets_yoy(asset_class)
 	output = []
-	for i, v in data.iteritems():
+	for i, v in sorted(data.iteritems(), key=lambda (k,v): (v,k), reverse=True):
 		output.append(i)
 		output.append(",")
 		output.append(str(v))
@@ -69,12 +67,12 @@ def write(label, asset_class):
 
 # Enter the sets of assets you want to compare
 spx_index = import_data('sp500_input.csv')
-ixn = ['AAPL', 'ORCL']
+ixn = ['AAPL', 'ORCL', 'MSFT', 'GOOG', 'BRCM']
 dow = ['XOM', 'GE']
 
 # For each item in the dictionary, the key will double as the name of the file that is outputted
 # Select what you actually want to write a file for
-types = {'SPX Index' : spx_index}
+types = {'Tech' : ixn}
 
 for i, v in types.iteritems():
 	write(i, v)
