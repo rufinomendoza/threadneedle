@@ -7,10 +7,14 @@ from pandas.io.data import DataReader
 from pandas import *
 import numpy as np
 import datetime
+
 from os.path import exists
 import urllib, json
 from math import sqrt
 import sys
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 # Import list of securities from csv file
 # Make sure class A and B stock symbols correspond to the yahoo finance symbology
@@ -25,10 +29,10 @@ def import_data(filename):
 # Looks up full security name based off stock symbol
 def retrieve_name(symbol):
 	url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%3D%22"+symbol+"%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback="
-	response = urllib.urlopen(url);
+	response = urllib.urlopen(url)
 	data = json.loads(response.read())
 	if data['query']['results'] is None:
-		output = "No response from data source"
+		output = 'No response from data source'
 	else:
 		output = data['query']['results']['quote']['Name']
 	return output
@@ -69,6 +73,9 @@ def generate_yoy_table(asset_class):
 			zed_scores.append(zscore)
 	zscore_series = Series(zed_scores, index=asset_class)
 
+	print ''
+	print 'Adding labels . . .'
+
 	names=[]
 	for stock in asset_class:
 		name = retrieve_name(stock)
@@ -81,8 +88,27 @@ def generate_yoy_table(asset_class):
 	print df_sorted
 	return df_sorted
 
+def to_percent(y, position):
+	# Ignore the passed in position. This has the effect of scaling the default
+	# tick locations.
+	s = str(100 * y)
+
+	# The percent symbol needs escaping in latex
+	if matplotlib.rcParams['text.usetex'] == True:
+		return s + r'$\%$'
+	else:
+		return s + '%'
+		
+def autolabel(rects):
+	# attach some text labels
+	for rect in rects:
+		height = rect.get_height()
+		plt.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
+				ha='center', va='bottom')
+
+
 # Excel Writer is the proc that handles reading and writing to Excel
-writer = ExcelWriter('output.xlsx')
+# writer = ExcelWriter('output.xlsx')
 
 # This skips the first argument which is the program
 args = []
@@ -94,5 +120,10 @@ extras = args[1::]
 for arg in extras:
 	data = import_data(str(arg))
 	table = generate_yoy_table(data)
-	table.to_excel(writer,str(arg))
-writer.save()
+	table.to_excel(str(arg)+'.xlsx',str(arg))
+	table['yoy'].plot(kind='bar')
+	formatter = FuncFormatter(to_percent)
+	plt.gca().yaxis.set_major_formatter(formatter)
+	plt.ylabel('Y/Y % Change')
+	plt.savefig(str(arg)+'.svg')
+# writer.save()
