@@ -20,9 +20,7 @@ from matplotlib.ticker import FuncFormatter
 # Make sure class A and B stock symbols correspond to the yahoo finance symbology
 def import_data(filename):
 	in_file = open(filename, 'r')
-	data = []
-	for row in in_file:
-		data.append(row.strip())
+	data = [row.strip() for row in in_file]
 	in_file.close()
 	return data
 
@@ -40,7 +38,7 @@ def retrieve_name(symbol):
 # This function just gets the raw data and finds the raw yoy
 def yoy(symbol):
 	start = DataReader(symbol, "yahoo", start=datetime.datetime(2011, 12, 30))
-	end = DataReader(symbol, "yahoo", start=datetime.datetime(2012, 12, 31), end=datetime.datetime(2012, 12, 31))
+	end = DataReader(symbol, "yahoo", start=datetime.datetime(2013, 01, 04))
 	print symbol,'from',str(start.ix[0].name)[0:10],'to',str(end.ix[0].name)[0:10]
 	# Eventually want to automate this so it's the last weekday of the year
 	return end["Adj Close"].ix[0]/start["Adj Close"].ix[0]-1
@@ -49,10 +47,7 @@ def yoy(symbol):
 def calc_yoy_series(asset_class):
 	print ''
 	print 'Retrieving performance data . . .'
-	yoy_chgs = []
-	for stock in asset_class:
-		yoy_chg = float(yoy(stock))
-		yoy_chgs.append(yoy_chg)
+	yoy_chgs = [float(yoy(stock)) for stock in asset_class]
 	yoy_series = Series(yoy_chgs, index=asset_class)
 	return yoy_series
 
@@ -67,19 +62,13 @@ def generate_yoy_table(asset_class):
 	print 'Standardizing data . . .'
 
 	for stock in asset_class:
-		zed_scores = []
-		for yoy_chg in yoy_series:
-			zscore = (yoy_chg - yoy_series.mean)/yoy_series.std
-			zed_scores.append(zscore)
+		zed_scores = [(yoy_chg - yoy_series.mean)/yoy_series.std for yoy_chg in yoy_series]
 	zscore_series = Series(zed_scores, index=asset_class)
 
 	print ''
 	print 'Adding labels . . .'
 
-	names=[]
-	for stock in asset_class:
-		name = retrieve_name(stock)
-		names.append(name)
+	names=[retrieve_name(stock) for stock in asset_class]
 	name_series = Series(names, index=asset_class)
 
 	data = { 'name' : name_series, 'yoy' : yoy_series, 'zscore' : zscore_series }
@@ -111,13 +100,10 @@ def autolabel(rects):
 # writer = ExcelWriter('output.xlsx')
 
 # This skips the first argument which is the program
-args = []
-for arg in sys.argv:
-	args.append(arg)
-extras = args[1::]
+args = [arg for arg in sys.argv][1::]
 
 # For each argument, it will import the file, generate a table, and then save it to Excel.
-for arg in extras:
+for arg in args:
 	data = import_data(str(arg))
 	table = generate_yoy_table(data)
 	table.to_excel(str(arg)+'.xlsx',str(arg))
