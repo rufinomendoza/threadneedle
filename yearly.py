@@ -2,7 +2,6 @@
 # Rufino Mendoza 1/1/2013
 
 from pandas import ols, DataFrame
-# from pandas.stats.moments import rolling_std
 from pandas.io.data import DataReader
 from pandas import *
 import numpy as np
@@ -37,11 +36,10 @@ def retrieve_name(symbol):
 
 # This function just gets the raw data and finds the raw yoy
 def yoy(symbol):
-	start = DataReader(symbol, "yahoo", start=datetime.datetime(2011, 12, 30))
-	end = DataReader(symbol, "yahoo", start=datetime.datetime(2013, 01, 04))
-	print symbol,'from',str(start.ix[0].name)[0:10],'to',str(end.ix[0].name)[0:10]
+	data = DataReader(symbol, "yahoo", start=datetime.datetime(2011, 12, 30), end=datetime.datetime(2013, 01, 04))
+	print symbol,'from',str(data.ix[0].name)[0:10],'to',str(data.ix[-1].name)[0:10]
 	# Eventually want to automate this so it's the last weekday of the year
-	return end["Adj Close"].ix[0]/start["Adj Close"].ix[0]-1
+	return data["Adj Close"].ix[-1]/data["Adj Close"].ix[0]-1
 
 # Puts the y/y returns into a series
 def calc_yoy_series(asset_class):
